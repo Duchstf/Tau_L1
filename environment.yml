@@ -1,7 +1,6 @@
 name: tau_training
 dependencies:
   - python=3.8
-  - tensorflow
   - keras
   - scikit-learn
   - matplotlib
@@ -13,3 +12,9 @@ dependencies:
     - scipy==1.5.4
     - mplhep
     - jupyter
+    - uproot4==4.0.0
+    - awkward==1.2.0
+    - hist[plot]
+    - monotonenorm
+    - tensorflow==2.11.0
+    - tensorflow-probability
