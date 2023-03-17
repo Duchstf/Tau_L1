@@ -12,7 +12,7 @@ conda-env create -f environment.yml
 Activate the environment:
 
 ```
-conda activate b_tag
+conda activate tau_training
 ```
 
 And then do whatever you want in this environment (edit files, open notebooks, etc.). To deactivate the environment:
