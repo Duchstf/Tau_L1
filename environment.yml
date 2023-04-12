@@ -18,3 +18,5 @@ dependencies:
     - monotonenorm
     - tensorflow==2.11.0
     - tensorflow-probability
+    - coffea==0.7.1
+    - hls4ml
