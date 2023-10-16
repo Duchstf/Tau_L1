@@ -50,3 +50,11 @@ jupyter notebook --no-browser --port 8722 --ip 127.0.0.1
 ```
 
 It would produce a link and then you can copy the link and paste it to your local browser to open the notebook!
+
+## Related Resources (latest addition on top)
+
+* Orion's talk in Tau-Jets-MET: https://indico.cern.ch/event/1321399/#17-phase-2-nn-puppi-taus
+* DP Note Tau ID v2 talk: https://indico.cern.ch/event/1298326/#14-dp-note-nn-puppi-taus
+* Duc's retraining Tau talk at L1 General Meeting: https://indico.cern.ch/event/1271855/#202-performance-report-algorit
+* Official Document on Rates: https://indico.cern.ch/event/1257943/contributions/5343040/attachments/2633523/4567965/AlgorithmsAndPerformance_2023_4.pdf
+* TauID @ L1 Talk (Phil): https://www.dropbox.com/s/84jbya301jtac8l/PCH_Tau_25_03.pdf?dl=0
