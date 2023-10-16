@@ -1,0 +1,13 @@
+Backend: Vivado
+ClockPeriod: 5
+HLSConfig:
+  Model:
+    Precision: ap_fixed<16,8>
+    ReuseFactor: 5
+    Strategy: Resource
+IOType: io_parallel
+KerasModel: !keras_model 'Tau_EM/keras_model.h5'
+OutputDir: Tau_EM
+Part: xcvu9p-flgb2104-2-i
+ProjectName: myproject
+Stamp: 74FECd28
