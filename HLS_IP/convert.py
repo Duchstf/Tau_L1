@@ -1,19 +1,40 @@
-import hls4ml
-
-# Standard Stuff
-import h5py
+import uproot4
 import numpy as np
-from numpy import expand_dims
+import awkward as ak
+from scipy.stats import norm
+from scipy.optimize import curve_fit
+import os
+import copy
+
+import tensorflow.keras as keras
 import tensorflow as tf
 
-from qkeras.utils import load_qmodel
-from keras.models import load_model
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.layers import *
+from tensorflow.keras.models import Model, Sequential, load_model
+import tensorflow_model_optimization as tfmot
 
 from sklearn.metrics import roc_curve
 from sklearn.metrics import auc
+from sklearn.model_selection import train_test_split
 
-#Plot settings
+import optparse
+import importlib
+import pathlib
+from keras import optimizers
+from qkeras.quantizers import quantized_bits, quantized_relu
+from qkeras.qlayers import QDense, QActivation
+from qkeras import QConv1D
+from qkeras.utils import load_qmodel
+
+import hist
+from hist import Hist
+
+import random
+
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+from matplotlib.pyplot import cm
 import mplhep as hep
 plt.style.use(hep.style.ROOT)
 
@@ -29,52 +50,51 @@ pylab.rcParams.update(params)
 import matplotlib as mpl
 mpl.rcParams['lines.linewidth'] = 5
 
-import os
-os.environ['PATH'] += os.pathsep + '/data/Xilinx/Vivado/2022.2/bin'
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        tf.config.experimental.set_virtual_device_configuration(
+            gpus[0],[tf.config.experimental.VirtualDeviceConfiguration(memory_limit=500)])
+    except RuntimeError as e:
+        print(e)
 
-MODEL_PATH = '../models/merged_11_gamma33_weights.h5'
+import hls4ml
+import hls4ml.utils
+import hls4ml.converters
 
-def merged_model(gamma=0.33):
+os.environ['PATH'] += os.pathsep + '/tools/Xilinx/Vitis_HLS/2022.1/bin'
 
-    inputs = tf.keras.layers.Input(shape=(80,), name='puppi_inputs')
-    
-    main_branch = tf.keras.layers.Dense(25, activation = "LeakyReLU", name='Dense1')(inputs)
-    main_branch = tf.keras.layers.Dense(25, activation = "LeakyReLU", name = 'Dense2')(main_branch)
-    main_branch = tf.keras.layers.Dense(15, activation = "LeakyReLU", name = 'Dense3')(main_branch)
-    main_branch = tf.keras.layers.Dense(15, activation = "LeakyReLU", name = 'Dense4')(main_branch)
-    main_branch = tf.keras.layers.Dense(10, activation = "LeakyReLU", name = 'Dense5')(main_branch)
-    
-    jetID_branch = tf.keras.layers.Dense(1, activation='sigmoid', name='jetID_output')(main_branch)
-    pT_branch = tf.keras.layers.Dense(1, name='pT_output')(main_branch)
+model = load_qmodel("../models/quantized_merged_pruned_gamma30.h5")
 
-    model = tf.keras.Model(inputs = inputs, outputs = [jetID_branch, pT_branch])
-    
-    return model
 
-#----------------------------------------------
-tau_model = merged_model(MODEL_PATH)
-tau_model.load_weights()
-    
-config = hls4ml.utils.config_from_keras_model(tau_model, granularity='name')
+config = hls4ml.utils.config_from_keras_model(model, granularity='name')
 
-for Layer in config['LayerName'].keys():          
-    if "Dense" in Layer:
+for Layer in config['LayerName'].keys():
+        if "Dense" in Layer:
 
-        config['LayerName'][Layer]['Strategy'] = 'Latency'
-        config['LayerName'][Layer]['ReuseFactor'] = 1
+            config['LayerName'][Layer]['Strategy'] = 'Latency'
+            config['LayerName'][Layer]['ReuseFactor'] = 1
 
-    else:
-        config['LayerName'][Layer]['Strategy'] = 'Latency'
-        config['LayerName'][Layer]['ReuseFactor'] = 1
+        else:
+            config['LayerName'][Layer]['Strategy'] = 'Latency'
+            config['LayerName'][Layer]['ReuseFactor'] = 1
 
-    hls_model = hls4ml.converters.convert_from_keras_model(tau_model,
-                                                           backend='Vitis',
-                                                           project_name='tau_nn', #I'm not very creative
-                                                           clock_period=2.8, #1/360MHz = 2.8ns
-                                                           hls_config=config,
-                                                           output_dir='TauID',
-                                                           part='xcvu9p-flga2104-2L-e')
+hls_model = hls4ml.converters.convert_from_keras_model(model,
+                                                       backend='Vitis',
+                                                       project_name='tau_nn', #I'm not very creative
+                                                       clock_period=2.8, #1/360MHz = 2.8ns
+                                                       hls_config=config,
+                                                       output_dir='hardwareII_COM/testing60_pruned/hls4ml_prj',
+                                                       part='xcvu9p-flga2104-2L-e')
 
-    hls_model.compile()
 
-    hls_model.build(csim=False, reset = True)
+# hls_model = hls4ml.converters.convert_from_keras_model(
+#     model, hls_config=config, output_dir='model_3/hls4ml_prj', part='xcu250-figd2104-2L-e'
+# )
+hls_model.compile()
+
+# y_qkeras = model.predict(np.ascontiguousarray(X_test))
+# y_hls = hls_model.predict(np.ascontiguousarray(X_test))
+
+hls_model.build(csim=False)
+hls4ml.converters.convert_from_keras_model
