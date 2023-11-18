@@ -1,5 +1,7 @@
 # Tau_L1
-Codes and documentation for L1Tau
+Codes and documentation for L1Tau.
+
+Authors: Orion Foo, Duc Hoang, Phil Harris. (MIT)
 
 ## Conda environment
 
