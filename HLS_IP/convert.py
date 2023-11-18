@@ -32,7 +32,6 @@ from hist import Hist
 
 import random
 
-%matplotlib inline
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from matplotlib.pyplot import cm
@@ -65,7 +64,7 @@ import hls4ml.converters
 
 os.environ['PATH'] += os.pathsep + '/tools/Xilinx/Vitis_HLS/2022.1/bin'
 
-model = load_qmodel("models/quantized_merged_pruned_gamma30.h5")
+model = load_qmodel("../models/quantized_merged_pruned_gamma30.h5")
 
 
 config = hls4ml.utils.config_from_keras_model(model, granularity='name')
