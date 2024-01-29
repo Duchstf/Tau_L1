@@ -55,6 +55,7 @@ It would produce a link and then you can copy the link and paste it to your loca
 
 ## Related Resources (latest addition on top)
 
+* Public Twiki: https://twiki.cern.ch/twiki/bin/view/CMSPublic/L1Phase2NNPuppiTau
 * Orion's talk in Tau-Jets-MET: https://indico.cern.ch/event/1321399/#17-phase-2-nn-puppi-taus
 * DP Note Tau ID v2 talk: https://indico.cern.ch/event/1298326/#14-dp-note-nn-puppi-taus
 * Duc's retraining Tau talk at L1 General Meeting: https://indico.cern.ch/event/1271855/#202-performance-report-algorit
