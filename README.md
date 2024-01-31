@@ -59,6 +59,7 @@ It would produce a link and then you can copy the link and paste it to your loca
 * Public Twiki (v2): https://twiki.cern.ch/twiki/bin/view/CMSPublic/L1Phase2NNPuppiTau
 * Orion's talk in Tau-Jets-MET: https://indico.cern.ch/event/1321399/#17-phase-2-nn-puppi-taus
 * DP Note Tau ID v2 talk: https://indico.cern.ch/event/1298326/#14-dp-note-nn-puppi-taus
+  * https://docs.google.com/presentation/d/12offcwPbynGl94C5zrsw39owu82U9SG1xQRz2dTqPkw/edit#slide=id.g278ac055907_0_61   
 * Duc's retraining Tau talk at L1 General Meeting: https://indico.cern.ch/event/1271855/#202-performance-report-algorit
 * Official Document on Rates: https://indico.cern.ch/event/1257943/contributions/5343040/attachments/2633523/4567965/AlgorithmsAndPerformance_2023_4.pdf
 * TauID @ L1 Talk (Phil): https://www.dropbox.com/s/84jbya301jtac8l/PCH_Tau_25_03.pdf?dl=0
