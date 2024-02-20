@@ -1,3 +1,4 @@
 ntuples/*
 *ipynb_checkpoints*
 *hls4ml/*
+verification/samples/*.root
