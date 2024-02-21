@@ -2,3 +2,4 @@ ntuples/*
 *ipynb_checkpoints*
 *hls4ml/*
 verification/samples/*.root
+verification/CMSSW/CMSSW*pre*
