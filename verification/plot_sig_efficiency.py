@@ -171,9 +171,9 @@ def plot_eff_pt(hist_all_tau,
 def main():
     
     model_path = '../models/quantized_merged_pruned_gamma30.h5'
-    data_path = '../ntuples/Jan_25_2023/test_sig_v12_emseed.root'
+    data_path = '../ntuples/14_0_0_pre1/tuples_vbf.root'
     TreeName= 'ntuplePupSingle'
-    test_indx= 400000
+    test_indx= 0
     corrected_pt_cut= 0
     cut_point = 0.22
     

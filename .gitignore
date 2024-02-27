@@ -3,3 +3,4 @@ ntuples/*
 *hls4ml/*
 verification/samples/*.root
 verification/CMSSW/CMSSW*pre*
+*__pycache__*

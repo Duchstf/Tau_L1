@@ -1,71 +1,73 @@
 '''
-Plot the pt resoultion in bins of pt for a given model.
+Plot all the pt regression results.
 '''
+from imports import *
 
-import uproot4
-import numpy as np
-import awkward as ak
-from scipy.stats import norm
-from scipy.optimize import curve_fit
-import os
-import copy
-
-import tensorflow.keras as keras
-import tensorflow as tf
-import tensorflow_model_optimization as tfmot
-
-from sklearn.model_selection import train_test_split
-from tensorflow.keras.layers import *
-from tensorflow.keras.models import Model, Sequential, load_model
-
-from sklearn.metrics import roc_curve
-from sklearn.metrics import auc
-from sklearn.model_selection import train_test_split
-
-import optparse
-import importlib
-import pathlib
-from keras import optimizers
-from qkeras.quantizers import quantized_bits, quantized_relu
-from qkeras.qlayers import QDense, QActivation
-from qkeras import QConv1D
-from qkeras.utils import load_qmodel
-
-import hist
-from hist import Hist
-
-import random
-
-import matplotlib.pyplot as plt
-import matplotlib.colors as colors
-from matplotlib.pyplot import cm
-import mplhep as hep
+#Set plotting style
 plt.style.use(hep.style.ROOT)
-
-import matplotlib.pylab as pylab
 params = {'legend.fontsize': 'medium',
          'axes.labelsize': 'x-large',
          'axes.titlesize':'x-large',
          'xtick.labelsize':'medium',
          'ytick.labelsize':'medium'}
 pylab.rcParams.update(params)
-
-#line thickness
-import matplotlib as mpl
 mpl.rcParams['lines.linewidth'] = 5
 
-def average(number1, number2):
-  return (number1 + number2) / 2.0
+def plot_pt_dist(data, model, test_index):
+    
+    '''
+    Plot distributions of PUPPI, corrected, and truth pt
+    '''
+    
+    #Might have to change the version for other ntuple files
+    inputs = data['ntuplePupSingle']['tree']['m_inputs'].array()[test_index:]
+    
+    truth_pt = data['ntuplePupSingle']['tree']['genpt1'].array()[test_index:]
+    reco_pt = data['ntuplePupSingle']['tree']['pt'].array()[test_index:]
+    deltaR = data['ntuplePupSingle']['tree']['gendr1'].array()[test_index:]
+    eta = data['ntuplePupSingle']['tree']['geneta1'].array()[test_index:]
 
-def main():
+    selection = (reco_pt > 0.) & (abs(deltaR) < 0.4) & (abs(eta) < 2.4)
     
-    #Load the data
-    test_index = 400000
-    data_path = '../ntuples/Jan_25_2023/test_sig_v12_emseed.root'
-    model_path = '../models/quantized_merged_pruned_gamma30.h5'
+    truth_pt_selected = np.asarray(truth_pt[selection])
+    reco_pt_selected = np.asarray(reco_pt[selection])
     
-    #Load the data
-    data = uproot4.open(data_path)
+    X_test = np.asarray(inputs[selection])
+    y_pred = model.predict(X_test)[1].flatten()
+    pred_pt = np.multiply(reco_pt_selected, y_pred)
+   
+    hist_pred_pt, edges_pred_pt = np.histogram(pred_pt, bins=20, range = (0,300), density = True)
+    errors_pred_pt = np.sqrt(hist_pred_pt*len(pred_pt)) / len(pred_pt)
+    bin_centers_pred_pt = 0.5 * (edges_pred_pt[:-1] + edges_pred_pt[1:])
+    
+    hist_reco, edges_reco = np.histogram(reco_pt_selected, bins=20, range = (0,300), density = True)
+    errors_reco = np.sqrt(hist_reco*len(reco_pt_selected)) / len(reco_pt_selected)
+    bin_centers_reco = 0.5 * (edges_reco[:-1] + edges_reco[1:])
+    
+    hist_truth, edges_truth = np.histogram(truth_pt_selected, bins=20, range = (0,300), density = True)
+    errors_truth = np.sqrt(hist_truth*len(truth_pt_selected)) / len(truth_pt_selected)
+    bin_centers_truth = 0.5 * (edges_truth[:-1] + edges_truth[1:])
+
+    #Plot the pts
+    plt.hist(truth_pt_selected, bins = 20, range = (0,300), density=True, histtype = 'step', label = 'Gen', linewidth=5)
+    plt.hist(reco_pt_selected, bins = 20, range = (0,300), density=True, histtype = 'step', label = 'PUPPI Reco', linewidth=5)
+    plt.hist(pred_pt, bins = 20, range = (0,300), density=True, histtype = 'step', label = 'NN Corrected', linewidth=5)
+    plt.errorbar(bin_centers_pred_pt, hist_pred_pt, yerr=errors_pred_pt, fmt='o', color = "#2ca02c", linewidth = 2, alpha = 0.5)
+    plt.errorbar(bin_centers_reco, hist_reco, yerr=errors_pred_pt, fmt='o', color = '#ff7f0e', linewidth = 2, alpha = 0.5)
+    plt.errorbar(bin_centers_truth, hist_truth, yerr=errors_truth, fmt='o', color = '#1f77b4', linewidth = 2, alpha = 0.5)
+    plt.ylim(0, 0.018)
+
+    plt.xlabel(r'$p_T$ [GeV]')
+    plt.ylabel('a.u.')
+    plt.legend()  
+    plt.show()
+    plt.savefig('plots/pt_distributions.pdf', bbox_inches='tight')
+    plt.close()
+
+def plot_mean_rms_pt(data, model, test_index):
+    '''
+    Plot the mean and rms w.r.t pt
+    '''
     
     inputs = data['ntuplePupSingle']['tree']['m_inputs'].array()[test_index:]
     
@@ -81,7 +83,6 @@ def main():
     X_test = np.asarray(inputs[selection])
     
     #Load the model and make pt correction
-    model = load_qmodel(model_path)
     y_pred = model.predict(X_test)[1].flatten()
     
     nn_pt = np.multiply(reco_pt_selected, y_pred)
@@ -150,6 +151,18 @@ def main():
     plt.show()
     plt.savefig('plots/rms_vs_pt.pdf', bbox_inches='tight')
     plt.close()
+
+def main():
     
+    model_path = '../models/quantized_merged_pruned_gamma30.h5'
+    data_path = '../ntuples/Jan_25_2023/test_sig_v12_emseed.root'
+    test_index= 0
     
+    data = uproot4.open(data_path)
+    model = load_qmodel(model_path)
+    
+    #
+    plot_pt_dist(data, model, test_index)
+    plot_mean_rms_pt(data, model, test_index)
+
 main()
