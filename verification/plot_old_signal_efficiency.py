@@ -71,8 +71,7 @@ def calculate_eff_pt(model_path,
     
     selection_deno = (truth_tau_pt > 1.) & (abs(eta_sig) < 2.1) #"genpt1 > 1. && abs(geneta1) < 2.1 "
     
-    ratio_predict = model.predict(np.asarray(sig_input))[1].flatten()
-    corrected_pt_sig = np.multiply(reco_pt_sig, ratio_predict)
+    corrected_pt_sig = reco_pt_sig
     selection_num_corrected = selection_deno & (abs(deltaR_sig) < 0.4) & (corrected_pt_sig>corrected_pt_cut) # " abs(gendr1) < 0.4 && pt > 1."
     
 
@@ -85,7 +84,7 @@ def calculate_eff_pt(model_path,
     truth_tau_pt_select = truth_tau_pt[selection_num_corrected]
 
     X_sig = np.asarray(sig_input[selection_num_corrected])
-    y_sig = model.predict(np.nan_to_num(X_sig))[0]
+    y_sig = model.predict(np.nan_to_num(X_sig))
 
     nn_cut = y_sig.flatten() > cut_point
     tau_pt_nn = np.asarray(truth_tau_pt_select)[nn_cut]
@@ -105,8 +104,6 @@ def calculate_eff_pt(model_path,
     
     return hist_all_tau, hist_selected_puppi, hist_selected_tau
     
-    
-
 def plot_eff_pt(hist_all_tau,
                 hist_selected_puppi,
                 hist_selected_tau,
@@ -165,17 +162,17 @@ def plot_eff_pt(hist_all_tau,
     plt.ylabel(r"$\epsilon$(Di-$\tau_h$ trigger rate at 28 kHz)")
     plt.legend(loc = 'best', fontsize=20)
     plt.show()
-    plt.savefig('plots/signal_efficiency_pt.pdf', bbox_inches='tight')
+    plt.savefig('plots/old_signal_efficiency_pt.pdf', bbox_inches='tight')
     plt.close()
     
 def main():
     
-    model_path = '../models/quantized_merged_pruned_gamma30.h5'
+    model_path = '../models/Feb_4_2023_JetMetTalk_v1_pTShape_EMSeed.h5'
     data_path = '../ntuples/14_0_0_pre1/tuples_vbf.root'
     TreeName= 'ntuplePupSingle'
     test_indx= 0
     corrected_pt_cut= 0
-    cut_point = 0.22
+    cut_point = 0.05
     
     #Do the calculation for selected data and output the filled histograms
     hist_all_tau, hist_selected_puppi, hist_selected_tau = calculate_eff_pt(model_path,
